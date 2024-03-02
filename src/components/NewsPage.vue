@@ -22,7 +22,6 @@
       <div class="mb-3">
         <label for="after" class="form-label">Start Date:</label>
         <input
-          value="2019-08-01"
           min="2019-08-01"
           max="2019-08-31"
           type="date"
@@ -36,7 +35,6 @@
       <div class="mb-3">
         <label for="before" class="form-label">End Date:</label>
         <input
-          value="2019-08-31"
           min="2019-08-01"
           max="2019-08-31"
           type="date"
@@ -70,8 +68,8 @@ export default {
       query_term: '',
       interval: 0,
       intervalUnit: 'd',
-      after: '',
-      before: '',
+      after: '2019-08-01', // set defaults to make it easiser to test
+      before: '2019-08-30',
       apiData: {}
     }
   },
