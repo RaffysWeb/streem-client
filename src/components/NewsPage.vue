@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="container mt-5">
+  <div id="app" class="container-fluid">
     <form @submit.prevent="submitForm">
       <div class="mb-3">
         <label for="query_term" class="form-label">Query:</label>
@@ -49,13 +49,22 @@
 
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+    <div v-if="apiData?.datasets?.length > 0" class="mt-5">
+      <BarChart :chartDataProp="apiData"></BarChart>
+    </div>
   </div>
 </template>
 
 <script>
 import NewsApi from '@/api/news.js'
+import BarChart from '@/components/BarChart.vue'
+import { parseNewsData } from '@/utils/parseChartData'
 
 export default {
+  components: {
+    BarChart
+  },
+
   data() {
     return {
       query_term: '',
@@ -63,35 +72,36 @@ export default {
       intervalUnit: 'd',
       after: '',
       before: '',
-      apiData: []
+      apiData: {}
     }
   },
+
   methods: {
     submitForm() {
       const requestData = {
         query_term: this.query_term,
         interval: `${this.interval}${this.intervalUnit}`,
-        // NOTE: The API expects timestamps in milliseconds
-        // we should shift the start date to the beginning of the day
-        // and the end date to the end of the day
-        // but for simplicity, we'll just use the default time
         after: this.dateToTimestamp(this.after),
-        before: this.dateToTimestamp(this.before)
+        before: this.dateToTimestamp(this.before, true)
       }
 
       NewsApi.fetchData(requestData)
         .then((data) => {
-          console.log(data)
-          this.apiData = data
+          this.apiData = parseNewsData(data.aggregations.first_agg.buckets)
         })
         .catch((error) => {
           console.error('Error fetching data:', error)
         })
     },
 
-    dateToTimestamp(dateString) {
-      // Convert date string to milliseconds
+    dateToTimestamp(dateString, endOfDay = false) {
       const date = new Date(dateString)
+
+      if (endOfDay) {
+        // Set the time to the end of the day to ensure we get all the data
+        date.setHours(23, 59, 59, 999)
+      }
+
       return date.getTime()
     }
   }
