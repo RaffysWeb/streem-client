@@ -1,4 +1,4 @@
-const apiUrl = 'http://localhost:3000/results'
+const apiUrl = process.env.API_URL || 'http://localhost:3000/results'
 
 export default {
   async fetchData(requestData) {
